@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { deleteTodo, getTodos, markAsDone, markAsUndone, getMetrics } from "../services/api";
-import { Box, Button, Checkbox, FormControl, Input, InputLabel, Menu, MenuItem, Pagination, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, TextField } from "@mui/material";
+import { Box, Button, Checkbox, FormControl, InputLabel, MenuItem, Pagination, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, TextField } from "@mui/material";
 import TodoForm from "./TodoForm";
 
 const TodoList = () => {
@@ -87,7 +87,8 @@ const TodoList = () => {
         }
 
         setSorting({ key, direction });
-        fetchTodos(page, filters);
+        setPage(1);
+        fetchTodos(1, { sortBy: key, sortOrder: direction, ...filters });
     };
 
     const handleFilter = (e) => {
@@ -95,14 +96,6 @@ const TodoList = () => {
         setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
         setPage(1);
     };
-
-    const sortedTodos = [...todos].sort((a, b) => {
-        if(a[sorting.key] < b[sorting.key]) {
-            return sorting.direction === 'asc' ? -1 : 1;
-        } else {
-            return sorting.direction === 'desc' ? -1 : 1;
-        }
-    });
 
     const todoBackgroundColor = (dueDate) => {
         if (!dueDate) { return '';   }
@@ -128,8 +121,8 @@ const TodoList = () => {
 
     return (
         <Box sx={{ padding: 2 }}>
-            <h1>Todo List</h1>
-            <Button variant="contained" color="primary" onClick={() => setIsModalOpen(true)}>
+            <h1 data-testid="todo-list-title">Todo List</h1>
+            <Button variant="contained" color="primary" onClick={() => setIsModalOpen(true)} data-testid="new-todo-button">
                 +New To Do
             </Button>
             <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
@@ -138,10 +131,11 @@ const TodoList = () => {
                     name="textFilter"
                     value={filters.textFilter}
                     onChange={handleFilter} fullWidth
+                    data-testid="text-filter"
                 />
                 <FormControl fullWidth>
                     <InputLabel>Priority</InputLabel>
-                    <Select name="priorityFilter" value={filters.priorityFilter} onChange={handleFilter} fullWidth >
+                    <Select name="priorityFilter" value={filters.priorityFilter} onChange={handleFilter} fullWidth data-testid="priority-filter">
                         <MenuItem value=""><em>All</em></MenuItem>
                         <MenuItem value="HIGH">High</MenuItem>
                         <MenuItem value="MEDIUM">Medium</MenuItem>
@@ -150,7 +144,7 @@ const TodoList = () => {
                 </FormControl>
                 <FormControl fullWidth>
                     <InputLabel>Done Status</InputLabel>
-                    <Select name="doneFilter" value={filters.doneFilter} onChange={handleFilter} fullWidth >
+                    <Select name="doneFilter" value={filters.doneFilter} onChange={handleFilter} fullWidth data-testid="done-filter">
                         <MenuItem value=""><em>All</em></MenuItem>
                         <MenuItem value="true">Done</MenuItem>
                         <MenuItem value="false">Undone</MenuItem>
@@ -162,7 +156,7 @@ const TodoList = () => {
                     <TableHead>
                         <TableRow>
                             <TableCell>
-                                <Checkbox onChange={handleAllDone}/>
+                                <Checkbox onChange={handleAllDone} data-testid="select-all-checkbox"/>
                             </TableCell>
                             <TableCell>Text</TableCell>
                             <TableCell>
@@ -170,6 +164,7 @@ const TodoList = () => {
                                     active={sorting.key === 'priority'}
                                     direction={sorting.direction}
                                     onClick={() => handleSort('priority')}
+                                    data-testid="priority-sort"
                                 >
                                     Priority
                                 </TableSortLabel>
@@ -179,6 +174,7 @@ const TodoList = () => {
                                     active={sorting.key === 'dueDate'}
                                     direction={sorting.direction}
                                     onClick={() => handleSort('dueDate')}
+                                    data-testid="duedate-sort"
                                 >
                                     Due Date
                                 </TableSortLabel>
@@ -187,23 +183,24 @@ const TodoList = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        { sortedTodos.length > 0 ? (
-                            sortedTodos.map((todo) => (
-                                <TableRow key={todo.id} style={{ backgroundColor: todoBackgroundColor(todo.dueDate) }}>
+                        { todos.length > 0 ? (
+                            todos.map((todo) => (
+                                <TableRow key={todo.id} style={{ backgroundColor: todoBackgroundColor(todo.dueDate) }} data-testid={`todo-${todo.id}`}>
                                     <TableCell>
                                         <Checkbox 
                                             checked={todo.done}
                                             onChange={() => { handleDone(todo) }}
+                                            data-testid={`checkbox-${todo.id}`}
                                         ></Checkbox>
                                     </TableCell>
-                                    <TableCell style={{ textDecoration: todo.done ? 'line-through' : 'none' }}>{ todo.text }</TableCell>
-                                    <TableCell>{ todo.priority }</TableCell>
-                                    <TableCell>{ todo.dueDate ? new Date(todo.dueDate).toLocaleDateString('es-MX', {timeZone: 'UTC'}) :'No date' }</TableCell>
+                                    <TableCell style={{ textDecoration: todo.done ? 'line-through' : 'none' }} data-testid={`text-${todo.id}`}>{ todo.text }</TableCell>
+                                    <TableCell data-testid={`priority-${todo.id}`}>{ todo.priority }</TableCell>
+                                    <TableCell data-testid={`duedate-${todo.id}`}>{ todo.dueDate ? new Date(todo.dueDate).toLocaleDateString('es-MX', {timeZone: 'UTC'}) :'No date' }</TableCell>
                                     <TableCell>
-                                        <Button variant="contained" color="secondary" onClick={() => setEditingTodo(todo)}>
+                                        <Button variant="contained" color="secondary" onClick={() => setEditingTodo(todo)} data-testid={`edit-button-${todo.id}`}>
                                             Edit
                                         </Button>
-                                        <Button variant="contained" color="error" onClick={() => handleDelete(todo.id)} sx={{ ml: 1 }}>
+                                        <Button variant="contained" color="error" onClick={() => handleDelete(todo.id)} sx={{ ml: 1 }} data-testid={`delete-button-${todo.id}`}>
                                             Delete
                                         </Button>
                                     </TableCell>
@@ -229,7 +226,7 @@ const TodoList = () => {
             <Box sx={{ marginTop: 4 }}>
                 <h2>Metrics</h2>
                 <h3>Average time to finish tasks:</h3>
-                <p>{ metrics.averageTimeForAllTasks }</p>
+                <p>{ formatAverageTime(metrics.averageTimeForAllTasks) }</p>
                 <h3>Average time to finish tasks by priority:</h3>
                 {Object.entries(metrics.averageTimeByPriority).map(([priority, averageTime]) => (
                     <p key={priority}>
