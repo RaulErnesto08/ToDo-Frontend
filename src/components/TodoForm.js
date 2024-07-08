@@ -68,7 +68,7 @@ const TodoForm = ({ isOpen, onRequestClose, todo, onSave }) => {
                     />
                     <DialogActions>
                         <Button onClick={onRequestClose}>Cancel</Button>
-                        <Button type="submit" variant="contained" color="primary">
+                        <Button type="submit" variant="contained" color="primary" data-testid="save-button">
                             {todo ? 'Update' : 'Add'} Todo
                         </Button>
                     </DialogActions>
