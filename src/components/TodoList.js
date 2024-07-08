@@ -193,7 +193,11 @@ const TodoList = () => {
                                             data-testid={`checkbox-${todo.id}`}
                                         ></Checkbox>
                                     </TableCell>
-                                    <TableCell style={{ textDecoration: todo.done ? 'line-through' : 'none' }} data-testid={`text-${todo.id}`}>{ todo.text }</TableCell>
+                                    <TableCell 
+                                    style={{ textDecoration: todo.done ? 'line-through' : 'none' }} 
+                                    data-testid={`text-${todo.id}`}>
+                                        { todo.text }
+                                    </TableCell>
                                     <TableCell data-testid={`priority-${todo.id}`}>{ todo.priority }</TableCell>
                                     <TableCell data-testid={`duedate-${todo.id}`}>{ todo.dueDate ? new Date(todo.dueDate).toLocaleDateString('es-MX', {timeZone: 'UTC'}) :'No date' }</TableCell>
                                     <TableCell>
