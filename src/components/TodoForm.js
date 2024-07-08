@@ -39,7 +39,7 @@ const TodoForm = ({ isOpen, onRequestClose, todo, onSave }) => {
                 {todo ? 'Edit Todo' : 'New Todo'}
             </DialogTitle>
             <DialogContent>
-                <Box component="form" onSubmit={handleSubmit}>
+                <Box component="form" onSubmit={handleSubmit} data-testid="todo-form">
                     <TextField 
                         label="Text"
                         value={text}
@@ -47,11 +47,16 @@ const TodoForm = ({ isOpen, onRequestClose, todo, onSave }) => {
                         required
                         fullWidth
                         margin="normal"
-                        inputProps={{ maxLength: 120 }}
+                        inputProps={{ maxLength: 120, 'data-testid': "text-input" }}
                     />
                     <FormControl fullWidth margin="normal">
-                        <InputLabel>Priority</InputLabel>
-                        <Select value={priority} onChange={(e) => setPriority(e.target.value)}>
+                        <InputLabel htmlFor="priority-select">Priority</InputLabel>
+                        <Select 
+                        labelId="priority-select-label"
+                        id="priority-select"
+                        value={priority} 
+                        onChange={(e) => setPriority(e.target.value)} 
+                        data-testid="priority-select">
                             <MenuItem value="HIGH">HIGH</MenuItem>
                             <MenuItem value="MEDIUM">MEDIUM</MenuItem>
                             <MenuItem value="LOW">LOW</MenuItem>
@@ -65,9 +70,10 @@ const TodoForm = ({ isOpen, onRequestClose, todo, onSave }) => {
                         fullWidth
                         margin="normal"
                         InputLabelProps={{ shrink: true }}
+                        inputProps={{ "data-testid": "due-date-input" }}
                     />
                     <DialogActions>
-                        <Button onClick={onRequestClose}>Cancel</Button>
+                        <Button onClick={onRequestClose} data-testid="cancel-button">Cancel</Button>
                         <Button type="submit" variant="contained" color="primary" data-testid="save-button">
                             {todo ? 'Update' : 'Add'} Todo
                         </Button>
